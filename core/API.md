@@ -1472,7 +1472,7 @@ Usage example:
 
 const myBucket = new Bucket(stack, "MyBucket")
 
-let myProps: IS3Sink = {
+let myProps: S3Sink = {
   sinkBucket: myBucket,
   sinkObjectKey: 'some-prefix',
   outputFileMaxSizeInBytes: 10000000,
@@ -1594,7 +1594,7 @@ Any object.
 | <code><a href="#aws-analytics-reference-architecture.BatchReplayer.property.ddbProps">ddbProps</a></code> | <code><a href="#aws-analytics-reference-architecture.DynamoDbSink">DynamoDbSink</a></code> | Parameters to write to DynamoDB target. |
 | <code><a href="#aws-analytics-reference-architecture.BatchReplayer.property.rdsProps">rdsProps</a></code> | <code><a href="#aws-analytics-reference-architecture.DbSink">DbSink</a></code> | Parameters to write to RDS target. |
 | <code><a href="#aws-analytics-reference-architecture.BatchReplayer.property.redshiftProps">redshiftProps</a></code> | <code><a href="#aws-analytics-reference-architecture.DbSink">DbSink</a></code> | Parameters to write to Redshift target. |
-| <code><a href="#aws-analytics-reference-architecture.BatchReplayer.property.s3Props">s3Props</a></code> | <code><a href="#aws-analytics-reference-architecture.IS3Sink">IS3Sink</a></code> | Parameters to write to S3 target. |
+| <code><a href="#aws-analytics-reference-architecture.BatchReplayer.property.s3Props">s3Props</a></code> | <code><a href="#aws-analytics-reference-architecture.S3Sink">S3Sink</a></code> | Parameters to write to S3 target. |
 | <code><a href="#aws-analytics-reference-architecture.BatchReplayer.property.secGroup">secGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group for the WriteInBatch Lambda function. |
 | <code><a href="#aws-analytics-reference-architecture.BatchReplayer.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC for the WriteInBatch Lambda function. |
 
@@ -1690,10 +1690,10 @@ Parameters to write to Redshift target.
 ##### `s3Props`<sup>Optional</sup> <a name="s3Props" id="aws-analytics-reference-architecture.BatchReplayer.property.s3Props"></a>
 
 ```typescript
-public readonly s3Props: IS3Sink;
+public readonly s3Props: S3Sink;
 ```
 
-- *Type:* <a href="#aws-analytics-reference-architecture.IS3Sink">IS3Sink</a>
+- *Type:* <a href="#aws-analytics-reference-architecture.S3Sink">S3Sink</a>
 
 Parameters to write to S3 target.
 
@@ -8725,12 +8725,13 @@ const batchReplayerProps: BatchReplayerProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#aws-analytics-reference-architecture.BatchReplayerProps.property.dataset">dataset</a></code> | <code><a href="#aws-analytics-reference-architecture.PreparedDataset">PreparedDataset</a></code> | The [PreparedDataset]{@link PreparedDataset} used to replay data. |
+| <code><a href="#aws-analytics-reference-architecture.BatchReplayerProps.property.additionalStepFunctionTasks">additionalStepFunctionTasks</a></code> | <code>aws-cdk-lib.aws_stepfunctions.IChainable[]</code> | Additional StupFunction Tasks to run sequentially after the BatchReplayer finishes. |
 | <code><a href="#aws-analytics-reference-architecture.BatchReplayerProps.property.auroraProps">auroraProps</a></code> | <code><a href="#aws-analytics-reference-architecture.DbSink">DbSink</a></code> | Parameters to write to Aurora target. |
 | <code><a href="#aws-analytics-reference-architecture.BatchReplayerProps.property.ddbProps">ddbProps</a></code> | <code><a href="#aws-analytics-reference-architecture.DynamoDbSink">DynamoDbSink</a></code> | Parameters to write to DynamoDB target. |
 | <code><a href="#aws-analytics-reference-architecture.BatchReplayerProps.property.frequency">frequency</a></code> | <code>aws-cdk-lib.Duration</code> | The frequency of the replay. |
 | <code><a href="#aws-analytics-reference-architecture.BatchReplayerProps.property.rdsProps">rdsProps</a></code> | <code><a href="#aws-analytics-reference-architecture.DbSink">DbSink</a></code> | Parameters to write to RDS target. |
 | <code><a href="#aws-analytics-reference-architecture.BatchReplayerProps.property.redshiftProps">redshiftProps</a></code> | <code><a href="#aws-analytics-reference-architecture.DbSink">DbSink</a></code> | Parameters to write to Redshift target. |
-| <code><a href="#aws-analytics-reference-architecture.BatchReplayerProps.property.s3Props">s3Props</a></code> | <code><a href="#aws-analytics-reference-architecture.IS3Sink">IS3Sink</a></code> | Parameters to write to S3 target. |
+| <code><a href="#aws-analytics-reference-architecture.BatchReplayerProps.property.s3Props">s3Props</a></code> | <code><a href="#aws-analytics-reference-architecture.S3Sink">S3Sink</a></code> | Parameters to write to S3 target. |
 | <code><a href="#aws-analytics-reference-architecture.BatchReplayerProps.property.secGroup">secGroup</a></code> | <code>aws-cdk-lib.aws_ec2.ISecurityGroup</code> | Security group for the WriteInBatch Lambda function. |
 | <code><a href="#aws-analytics-reference-architecture.BatchReplayerProps.property.vpc">vpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | VPC for the WriteInBatch Lambda function. |
 
@@ -8745,6 +8746,19 @@ public readonly dataset: PreparedDataset;
 - *Type:* <a href="#aws-analytics-reference-architecture.PreparedDataset">PreparedDataset</a>
 
 The [PreparedDataset]{@link PreparedDataset} used to replay data.
+
+---
+
+##### `additionalStepFunctionTasks`<sup>Optional</sup> <a name="additionalStepFunctionTasks" id="aws-analytics-reference-architecture.BatchReplayerProps.property.additionalStepFunctionTasks"></a>
+
+```typescript
+public readonly additionalStepFunctionTasks: IChainable[];
+```
+
+- *Type:* aws-cdk-lib.aws_stepfunctions.IChainable[]
+- *Default:* The BatchReplayer do not have additional Tasks  The expected input for the first Task in this sequence is:  input = [ { "processedRecords": Int, "outputPaths": String [], "startTimeinIso": String, "endTimeinIso": String } ]  Each element in input represents the output of each lambda iterator that replays the data.  param: processedRecods -> Number of records processed param: ouputPaths -> List of files created in S3  **  eg. "s3://<sinkBucket name>/<s3ObjectKeySink prefix, if any>/<dataset name>/ingestion_start=<timestamp>/ingestion_end=<timestamp>/<s3 filename>.csv", param: startTimeinIso -> Start Timestamp on original dataset param: endTimeinIso -> End Timestamp on original dataset  *outputPaths* can be used to extract and aggregate new partitions on data and  trigger additional Tasks.
+
+Additional StupFunction Tasks to run sequentially after the BatchReplayer finishes.
 
 ---
 
@@ -8812,10 +8826,10 @@ Parameters to write to Redshift target.
 ##### `s3Props`<sup>Optional</sup> <a name="s3Props" id="aws-analytics-reference-architecture.BatchReplayerProps.property.s3Props"></a>
 
 ```typescript
-public readonly s3Props: IS3Sink;
+public readonly s3Props: S3Sink;
 ```
 
-- *Type:* <a href="#aws-analytics-reference-architecture.IS3Sink">IS3Sink</a>
+- *Type:* <a href="#aws-analytics-reference-architecture.S3Sink">S3Sink</a>
 
 Parameters to write to S3 target.
 
@@ -11195,6 +11209,66 @@ The S3 object key to grant cross account access (S3 prefix without the bucket na
 
 ---
 
+### S3Sink <a name="S3Sink" id="aws-analytics-reference-architecture.S3Sink"></a>
+
+#### Initializer <a name="Initializer" id="aws-analytics-reference-architecture.S3Sink.Initializer"></a>
+
+```typescript
+import { S3Sink } from 'aws-analytics-reference-architecture'
+
+const s3Sink: S3Sink = { ... }
+```
+
+#### Properties <a name="Properties" id="Properties"></a>
+
+| **Name** | **Type** | **Description** |
+| --- | --- | --- |
+| <code><a href="#aws-analytics-reference-architecture.S3Sink.property.sinkBucket">sinkBucket</a></code> | <code>aws-cdk-lib.aws_s3.Bucket</code> | The S3 Bucket sink where the BatchReplayer writes data. |
+| <code><a href="#aws-analytics-reference-architecture.S3Sink.property.outputFileMaxSizeInBytes">outputFileMaxSizeInBytes</a></code> | <code>number</code> | The maximum file size in Bytes written by the BatchReplayer. |
+| <code><a href="#aws-analytics-reference-architecture.S3Sink.property.sinkObjectKey">sinkObjectKey</a></code> | <code>string</code> | The S3 object key sink where the BatchReplayer writes data. |
+
+---
+
+##### `sinkBucket`<sup>Required</sup> <a name="sinkBucket" id="aws-analytics-reference-architecture.S3Sink.property.sinkBucket"></a>
+
+```typescript
+public readonly sinkBucket: Bucket;
+```
+
+- *Type:* aws-cdk-lib.aws_s3.Bucket
+
+The S3 Bucket sink where the BatchReplayer writes data.
+
+:warning: **If the Bucket is encrypted with KMS, the Key must be managed by this stack.
+
+---
+
+##### `outputFileMaxSizeInBytes`<sup>Optional</sup> <a name="outputFileMaxSizeInBytes" id="aws-analytics-reference-architecture.S3Sink.property.outputFileMaxSizeInBytes"></a>
+
+```typescript
+public readonly outputFileMaxSizeInBytes: number;
+```
+
+- *Type:* number
+- *Default:* The BatchReplayer writes 100MB files maximum
+
+The maximum file size in Bytes written by the BatchReplayer.
+
+---
+
+##### `sinkObjectKey`<sup>Optional</sup> <a name="sinkObjectKey" id="aws-analytics-reference-architecture.S3Sink.property.sinkObjectKey"></a>
+
+```typescript
+public readonly sinkObjectKey: string;
+```
+
+- *Type:* string
+- *Default:* No object key is used and the BatchReplayer writes the dataset in s3://<BUCKET_NAME>/<TABLE_NAME>
+
+The S3 object key sink where the BatchReplayer writes data.
+
+---
+
 ### SynchronousAthenaQueryProps <a name="SynchronousAthenaQueryProps" id="aws-analytics-reference-architecture.SynchronousAthenaQueryProps"></a>
 
 The properties for the SynchronousAthenaQuery construct.
@@ -11929,62 +12003,6 @@ The BatchReplayer adds two columns ingestion_start and ingestion_end
 
 ---
 
-## Protocols <a name="Protocols" id="Protocols"></a>
-
-### IS3Sink <a name="IS3Sink" id="aws-analytics-reference-architecture.IS3Sink"></a>
-
-- *Implemented By:* <a href="#aws-analytics-reference-architecture.IS3Sink">IS3Sink</a>
-
-
-#### Properties <a name="Properties" id="Properties"></a>
-
-| **Name** | **Type** | **Description** |
-| --- | --- | --- |
-| <code><a href="#aws-analytics-reference-architecture.IS3Sink.property.sinkBucket">sinkBucket</a></code> | <code>aws-cdk-lib.aws_s3.Bucket</code> | The S3 Bucket sink where the BatchReplayer writes data. |
-| <code><a href="#aws-analytics-reference-architecture.IS3Sink.property.outputFileMaxSizeInBytes">outputFileMaxSizeInBytes</a></code> | <code>number</code> | The maximum file size in Bytes written by the BatchReplayer. |
-| <code><a href="#aws-analytics-reference-architecture.IS3Sink.property.sinkObjectKey">sinkObjectKey</a></code> | <code>string</code> | The S3 object key sink where the BatchReplayer writes data. |
-
----
-
-##### `sinkBucket`<sup>Required</sup> <a name="sinkBucket" id="aws-analytics-reference-architecture.IS3Sink.property.sinkBucket"></a>
-
-```typescript
-public readonly sinkBucket: Bucket;
-```
-
-- *Type:* aws-cdk-lib.aws_s3.Bucket
-
-The S3 Bucket sink where the BatchReplayer writes data.
-
-:warning: **If the Bucket is encrypted with KMS, the Key must be managed by this stack.
-
----
-
-##### `outputFileMaxSizeInBytes`<sup>Optional</sup> <a name="outputFileMaxSizeInBytes" id="aws-analytics-reference-architecture.IS3Sink.property.outputFileMaxSizeInBytes"></a>
-
-```typescript
-public readonly outputFileMaxSizeInBytes: number;
-```
-
-- *Type:* number
-- *Default:* The BatchReplayer writes 100MB files maximum
-
-The maximum file size in Bytes written by the BatchReplayer.
-
----
-
-##### `sinkObjectKey`<sup>Optional</sup> <a name="sinkObjectKey" id="aws-analytics-reference-architecture.IS3Sink.property.sinkObjectKey"></a>
-
-```typescript
-public readonly sinkObjectKey: string;
-```
-
-- *Type:* string
-- *Default:* No object key is used and the BatchReplayer writes the dataset in s3://<BUCKET_NAME>/<TABLE_NAME>
-
-The S3 object key sink where the BatchReplayer writes data.
-
----
 
 ## Enums <a name="Enums" id="Enums"></a>
 

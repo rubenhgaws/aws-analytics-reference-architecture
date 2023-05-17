@@ -7,7 +7,8 @@ import { SfnStateMachine } from 'aws-cdk-lib/aws-events-targets';
 import { PolicyStatement } from 'aws-cdk-lib/aws-iam';
 import { LayerVersion, Runtime } from 'aws-cdk-lib/aws-lambda';
 import { LogGroup, RetentionDays } from 'aws-cdk-lib/aws-logs';
-import { JsonPath, LogLevel, Map, StateMachine, TaskInput } from 'aws-cdk-lib/aws-stepfunctions';
+import { JsonPath, LogLevel, Map, StateMachine, 
+         TaskInput, INextable, IChainable } from 'aws-cdk-lib/aws-stepfunctions';
 import { LambdaInvoke } from 'aws-cdk-lib/aws-stepfunctions-tasks';
 import { Construct } from 'constructs';
 import { PreBundledFunction } from '../common/pre-bundled-function';
@@ -19,7 +20,7 @@ import {
   prepareRdsTarget,
   prepareRedshiftTarget,
   prepareS3Target,
-  IS3Sink,
+  S3Sink,
   DbSink,
   DynamoDbSink,
 } from './batch-replayer-helpers';
@@ -41,7 +42,7 @@ export interface BatchReplayerProps {
   /**
    * Parameters to write to S3 target
    */
-  readonly s3Props?: IS3Sink;
+  readonly s3Props?: S3Sink;
   /**
    * Parameters to write to DynamoDB target
    */
@@ -66,6 +67,34 @@ export interface BatchReplayerProps {
    * VPC for the WriteInBatch Lambda function
    */
   readonly vpc?: IVpc;
+  /**
+   * Additional StupFunction Tasks to run sequentially after the BatchReplayer finishes
+   * @default - The BatchReplayer do not have additional Tasks
+   * 
+   * The expected input for the first Task in this sequence is:
+   * 
+   * input = [
+   *  {
+   *    "processedRecords": Int,
+   *    "outputPaths": String [],
+   *    "startTimeinIso": String,
+   *    "endTimeinIso": String
+   *  }
+   * ]
+   * 
+   * Each element in input represents the output of each lambda iterator that replays the data.
+   * 
+   * param: processedRecods -> Number of records processed
+   * param: ouputPaths -> List of files created in S3 
+   *  **  eg. "s3://<sinkBucket name>/<s3ObjectKeySink prefix, if any>/<dataset name>/ingestion_start=<timestamp>/ingestion_end=<timestamp>/<s3 filename>.csv",
+
+   * param: startTimeinIso -> Start Timestamp on original dataset
+   * param: endTimeinIso -> End Timestamp on original dataset
+   * 
+   * *outputPaths* can be used to extract and aggregate new partitions on data and 
+   * trigger additional Tasks.
+   */
+  readonly additionalStepFunctionTasks?: IChainable [];
 }
 
 /**
@@ -86,7 +115,7 @@ export interface BatchReplayerProps {
  *
  * const myBucket = new Bucket(stack, "MyBucket")
  *
- * let myProps: IS3Sink = {
+ * let myProps: S3Sink = {
  *  sinkBucket: myBucket,
  *  sinkObjectKey: 'some-prefix',
  *  outputFileMaxSizeInBytes: 10000000,
@@ -116,7 +145,7 @@ export class BatchReplayer extends Construct {
   /**
    * Parameters to write to S3 target
    */
-  public readonly s3Props?: IS3Sink;
+  public readonly s3Props?: S3Sink;
   /**
    * Parameters to write to DynamoDB target
    */
@@ -143,6 +172,13 @@ export class BatchReplayer extends Construct {
   public readonly vpc?: IVpc;
 
   /**
+   * Optional Sequence of additional Tasks to append at the end of the Step Function
+   * that replays data that will execute after data has been replayed
+   */
+  private readonly additionalStepFunctionTasks?: IChainable [];
+
+
+  /**
    * Constructs a new instance of the BatchReplayer construct
    * @param {Construct} scope the Scope of the CDK Construct
    * @param {string} id the ID of the CDK Construct
@@ -153,14 +189,8 @@ export class BatchReplayer extends Construct {
 
     this.dataset = props.dataset;
     this.frequency = props.frequency?.toSeconds() || 60;
+    this.additionalStepFunctionTasks = props.additionalStepFunctionTasks;
 
-    // Properties for S3 target
-    if (props.s3Props) {
-      this.s3Props = props.s3Props;
-      if (!this.s3Props.outputFileMaxSizeInBytes) {
-        this.s3Props.outputFileMaxSizeInBytes = 100 * 1024 * 1024; //Default to 100 MB
-      }
-    }
     const manifestBucketName = this.dataset.manifestLocation.bucketName;
     const manifestObjectKey = this.dataset.manifestLocation.objectKey;
     const dataBucketName = this.dataset.location.bucketName;
@@ -237,12 +267,18 @@ export class BatchReplayer extends Construct {
     };
 
     // S3 target is selected
-    if (this.s3Props) {
+    if (props.s3Props) {
       // Used to force S3 bucket auto cleaning after deletion of this
-      this.node.addDependency(this.s3Props.sinkBucket);
+      this.node.addDependency(props.s3Props.sinkBucket);
+      var modS3Props = { ...props.s3Props };
+      if (!props.s3Props.outputFileMaxSizeInBytes) {
+        modS3Props.outputFileMaxSizeInBytes = 100 * 1024 * 1024; //Default to 100 MB
+      }
 
-      this.s3Props.sinkObjectKey = this.s3Props.sinkObjectKey ?
-        `${this.s3Props.sinkObjectKey}/${this.dataset.tableName}` : this.dataset.tableName;
+      modS3Props.sinkObjectKey = props.s3Props.sinkObjectKey ?
+        `${props.s3Props.sinkObjectKey}/${this.dataset.tableName}` : this.dataset.tableName;
+        
+      this.s3Props = modS3Props;
 
       const { policy, taskInputParams } = prepareS3Target(this.s3Props, dataBucketName, dataObjectKey);
       writeInBatchFnPolicy.push(policy);
@@ -337,7 +373,9 @@ export class BatchReplayer extends Construct {
 
     // Overarching Step Function StateMachine
     const batchReplayStepFn = new StateMachine(this, 'BatchReplayStepFn', {
-      definition: findFilePathsFnTask.next(writeInBatchMapTask),
+      definition: this.chainStepFunctionTasks(
+          findFilePathsFnTask.next(writeInBatchMapTask)
+        ),
       timeout: Duration.minutes(20),
       logs: {
         destination: new LogGroup(this, 'LogGroup', {
@@ -354,4 +392,18 @@ export class BatchReplayer extends Construct {
       targets: [new SfnStateMachine(batchReplayStepFn, {})],
     });
   }
+
+  private chainStepFunctionTasks(requiredTasks: IChainable & INextable) {
+  
+    let base = requiredTasks;
+
+    if (this.additionalStepFunctionTasks) {
+    
+      this.additionalStepFunctionTasks.forEach(newTask => {
+        base = base.next(newTask)
+      });
+    }
+    return base;
+  }
+
 }
