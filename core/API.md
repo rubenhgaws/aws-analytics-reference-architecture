@@ -168,14 +168,14 @@ The bucket name is mandatory and is used as the CDK id.
 The bucket name is postfixed with the AWS account ID and the AWS region.
 
 The bucket has the following default properties:
-  * the encryption mode is KMS managed by AWS
-  * if the encryption mode is KMS customer managed, the encryption key is a default and unique KMS key for ARA
-  * the KMS key is used as a bucket key
-  * the SSL is enforced
-  * the objects are automatically deleted when the bucket is deleted
-  * the access are logged in a default and unique S3 bucket for ARA if serverAccessLogsPrefix is provided
-  * the access are not logged if serverAccessLogsPrefix is  not provided
-  * the public access is blocked and no bucket policy or object permission can grant public access
+ * the encryption mode is KMS managed by AWS
+ * if the encryption mode is KMS customer managed, the encryption key is a default and unique KMS key for ARA
+ * the KMS key is used as a bucket key
+ * the SSL is enforced
+ * the objects are automatically deleted when the bucket is deleted
+ * the access are logged in a default and unique S3 bucket for ARA if serverAccessLogsPrefix is provided
+ * the access are not logged if serverAccessLogsPrefix is  not provided
+ * the public access is blocked and no bucket policy or object permission can grant public access
 
 All standard S3 Bucket properties can be provided to not use the defaults.
 Usage example:
@@ -187,8 +187,8 @@ const exampleApp = new cdk.App();
 const stack = new cdk.Stack(exampleApp, 'AraBucketStack');
 
 new AraBucket(stack, {
-  bucketName: 'test-bucket',
-  serverAccessLogsPrefix: 'test-bucket',
+ bucketName: 'test-bucket',
+ serverAccessLogsPrefix: 'test-bucket',
 });
 ```
 
@@ -439,6 +439,8 @@ The principal.
 
 Restrict the permission to a certain key pattern (default '*').
 
+Parameter type is `any` but `string` should be passed in.
+
 ---
 
 ##### `grantPublicAccess` <a name="grantPublicAccess" id="aws-analytics-reference-architecture.AraBucket.grantPublicAccess"></a>
@@ -511,6 +513,8 @@ The principal.
 
 Restrict the permission to a certain key pattern (default '*').
 
+Parameter type is `any` but `string` should be passed in.
+
 ---
 
 ##### `grantPutAcl` <a name="grantPutAcl" id="aws-analytics-reference-architecture.AraBucket.grantPutAcl"></a>
@@ -561,6 +565,8 @@ The principal.
 - *Type:* any
 
 Restrict the permission to a certain key pattern (default '*').
+
+Parameter type is `any` but `string` should be passed in.
 
 ---
 
@@ -1473,15 +1479,15 @@ Usage example:
 const myBucket = new Bucket(stack, "MyBucket")
 
 let myProps: S3Sink = {
-  sinkBucket: myBucket,
-  sinkObjectKey: 'some-prefix',
-  outputFileMaxSizeInBytes: 10000000,
+ sinkBucket: myBucket,
+ sinkObjectKey: 'some-prefix',
+ outputFileMaxSizeInBytes: 10000000,
 }
 
 new BatchReplayer(stack, "WebSalesReplayer", {
-   dataset: PreparedDataset.RETAIL_1_GB_WEB_SALE,
-   s3Props: myProps,
-   frequency: 120,
+  dataset: PreparedDataset.RETAIL_1_GB_WEB_SALE,
+  s3Props: myProps,
+  frequency: 120,
 });
 ```
 
@@ -1733,29 +1739,29 @@ It can be used for AWS workshop or AWS blog examples deployment when CDK is not 
 The stack supports passing the CDK application stack name to deploy (in case there are multiple stacks in the CDK app) and CDK parameters.
 
 It contains the necessary resources to synchronously deploy a CDK application from a GitHub repository:
-  * A CodeBuild project to effectively deploy the CDK application
-  * A StartBuild custom resource to synchronously triggers the build using a callback pattern based on Event Bridge
-  * The necessary roles and permissions
+ * A CodeBuild project to effectively deploy the CDK application
+ * A StartBuild custom resource to synchronously triggers the build using a callback pattern based on Event Bridge
+ * The necessary roles and permissions
 
 The StartBuild CFN custom resource is using the callback pattern to wait for the build completion:
-  1. a Lambda function starts the build but doesn't return any value to the CFN callback URL. Instead, the callback URL is passed to the build project.
-  2. the completion of the build triggers an Event and a second Lambda function which checks the result of the build and send information to the CFN callback URL
+ 1. a Lambda function starts the build but doesn't return any value to the CFN callback URL. Instead, the callback URL is passed to the build project.
+ 2. the completion of the build triggers an Event and a second Lambda function which checks the result of the build and send information to the CFN callback URL
 
-  * Usage example:
+ * Usage example:
 ```typescript
 new CdkDeployer(AwsNativeRefArchApp, 'AwsNativeRefArchDeployer', {
-  githubRepository: 'aws-samples/aws-analytics-reference-architecture',
-  cdkAppLocation: 'refarch/aws-native',
-  cdkParameters: {
-    QuickSightUsername: {
-      default: 'myuser',
-      type: 'String',
-    },
-    QuickSightIdentityRegion: {
-      default: 'us-east-1',
-      type: 'String',
-    },
-  },
+ githubRepository: 'aws-samples/aws-analytics-reference-architecture',
+ cdkAppLocation: 'refarch/aws-native',
+ cdkParameters: {
+   QuickSightUsername: {
+     default: 'myuser',
+     type: 'String',
+   },
+   QuickSightIdentityRegion: {
+     default: 'us-east-1',
+     type: 'String',
+   },
+ },
 });
 ```
 
@@ -2631,7 +2637,7 @@ If this is a nested stack, this represents its `AWS::CloudFormation::Stack` reso
 
 ---
 
-##### `terminationProtection`<sup>Optional</sup> <a name="terminationProtection" id="aws-analytics-reference-architecture.CdkDeployer.property.terminationProtection"></a>
+##### `terminationProtection`<sup>Required</sup> <a name="terminationProtection" id="aws-analytics-reference-architecture.CdkDeployer.property.terminationProtection"></a>
 
 ```typescript
 public readonly terminationProtection: boolean;
@@ -2765,9 +2771,9 @@ Object references are passed from the DataDomain account to the CentralGovernanc
 It includes the following JSON object:
 ```json
 {
-   BucketName: 'clean-<ACCOUNT_ID>-<REGION>',
-   Prefix: 'data-products',
-   KmsKeyId: '<KMS_ID>,
+  BucketName: 'clean-<ACCOUNT_ID>-<REGION>',
+  Prefix: 'data-products',
+  KmsKeyId: '<KMS_ID>,
 }
 ```
 
@@ -2959,20 +2965,20 @@ const app = new App();
 const stack = new Stack(app, 'CustomDatasetStack');
 
 const custom = new CustomDataset(stack, 'CustomDataset', {
-   s3Location: {
-     bucketName: 'aws-analytics-reference-architecture',
-     objectKey: 'datasets/custom',
-   },
-   inputFormat: CustomDatasetInputFormat.CSV,
-   datetimeColumn: 'tpep_pickup_datetime',
-   datetimeColumnsToAdjust: ['tpep_pickup_datetime'],
-   partitionRange: Duration.minutes(5),
-   approximateDataSize: 1,
+  s3Location: {
+    bucketName: 'aws-analytics-reference-architecture',
+    objectKey: 'datasets/custom',
+  },
+  inputFormat: CustomDatasetInputFormat.CSV,
+  datetimeColumn: 'tpep_pickup_datetime',
+  datetimeColumnsToAdjust: ['tpep_pickup_datetime'],
+  partitionRange: Duration.minutes(5),
+  approximateDataSize: 1,
 });
 
 new CfnOutput(this, 'LogGroupName', {
-   exportName: 'logGroupName,
-   value: custom.glueJobLogGroup,
+  exportName: 'logGroupName,
+  value: custom.glueJobLogGroup,
 });
 ```
 
@@ -3129,7 +3135,7 @@ It creates the following:
 * A data lake with multiple layers (Raw, Cleaned, Transformed) using {@link DataLakeStorage} construct
 * An mazon EventBridge Event Bus and Rules to enable Central Governance account to send events to Data Domain account
 * An AWS Secret Manager secret encrypted via AWS KMS and used to share references with the central governance account
-* A Data Domain Workflow {@link DataDomainWorkflow} responsible for creating resources in the data domain via a Step Functions state machine
+* A Data Domain Workflow {@link DataDomainWorkflow } responsible for creating resources in the data domain via a Step Functions state machine
 * An optional Crawler workflow {@link DataDomainCrawler} responsible for updating the data product schema after registration via a Step Functions state machine
 
 Usage example:
@@ -3142,9 +3148,9 @@ const exampleApp = new App();
 const stack = new Stack(exampleApp, 'DataProductStack');
 
 new DataDomain(stack, 'myDataDomain', {
-  centralAccountId: '1234567891011',
-  crawlerWorkflow: true,
-  domainName: 'domainName'
+ centralAccountId: '1234567891011',
+ crawlerWorkflow: true,
+ domainName: 'domainName'
 });
 ```
 
@@ -3364,7 +3370,7 @@ public readonly DOMAIN_CONFIG_SECRET: string;
 
 ### DataLakeCatalog <a name="DataLakeCatalog" id="aws-analytics-reference-architecture.DataLakeCatalog"></a>
 
-A Data Lake Catalog composed of 3 AWS Glue Database configured with AWS best practices:   Databases for Raw/Cleaned/Transformed data,.
+A Data Lake Catalog composed of 3 AWS Glue Database configured with AWS best practices:  Databases for Raw/Cleaned/Transformed data,.
 
 #### Initializers <a name="Initializers" id="aws-analytics-reference-architecture.DataLakeCatalog.Initializer"></a>
 
@@ -3649,17 +3655,17 @@ Constructs a new instance of the DataLakeExporter class.
 A CDK Construct that creates the storage layers of a data lake composed of Amazon S3 Buckets.
 
 This construct is based on 3 Amazon S3 buckets configured with AWS best practices:
-  * S3 buckets for Raw/Cleaned/Transformed data,
-  * data lifecycle optimization/transitioning to different Amazon S3 storage classes
-  * server side buckets encryption managed by KMS customer key
-  * Default single KMS key
-  * SSL communication enforcement
-  * access logged to an S3 bucket
-  * All public access blocked
+ * S3 buckets for Raw/Cleaned/Transformed data,
+ * data lifecycle optimization/transitioning to different Amazon S3 storage classes
+ * server side buckets encryption managed by KMS customer key
+ * Default single KMS key
+ * SSL communication enforcement
+ * access logged to an S3 bucket
+ * All public access blocked
 
 By default the transitioning rules to Amazon S3 storage classes are configured as following:
-  * Raw data is moved to Infrequent Access after 30 days and archived to Glacier after 90 days
-  * Clean and Transformed data is moved to Infrequent Access after 90 days and is not archived
+ * Raw data is moved to Infrequent Access after 30 days and archived to Glacier after 90 days
+ * Clean and Transformed data is moved to Infrequent Access after 90 days and is not archived
 
 Objects and buckets are automatically deleted when the CDK application is detroyed.
 
@@ -3674,12 +3680,12 @@ const exampleApp = new cdk.App();
 const stack = new cdk.Stack(exampleApp, 'DataLakeStorageStack');
 
 new DataLakeStorage(stack, 'MyDataLakeStorage', {
-  rawInfrequentAccessDelay: 90,
-  rawArchiveDelay: 180,
-  cleanInfrequentAccessDelay: 180,
-  cleanArchiveDelay: 360,
-  transformInfrequentAccessDelay: 180,
-  transformArchiveDelay: 360,
+ rawInfrequentAccessDelay: 90,
+ rawArchiveDelay: 180,
+ cleanInfrequentAccessDelay: 180,
+ cleanArchiveDelay: 360,
+ transformInfrequentAccessDelay: 180,
+ transformArchiveDelay: 360,
 });
 ```
 
@@ -4160,7 +4166,7 @@ in `usePrecreatedRoles`.
 
 ```typescript
 declare const app: App;
-Role.customizeRoles(app, {
+iam.Role.customizeRoles(app, {
   usePrecreatedRoles: {
     'ConstructPath/To/Role': 'my-precreated-role-name',
   },
@@ -4494,18 +4500,18 @@ Usage example:
 
 ```typescript
 const emrEks: EmrEksCluster = EmrEksCluster.getOrCreate(stack, {
-   eksAdminRoleArn: <ROLE_ARN>,
-   eksClusterName: <CLUSTER_NAME>,
+  eksAdminRoleArn: <ROLE_ARN>,
+  eksClusterName: <CLUSTER_NAME>,
 });
 
 const virtualCluster = emrEks.addEmrVirtualCluster(stack, {
-   name: <Virtual_Cluster_Name>,
-   createNamespace: <TRUE OR FALSE>,
-   eksNamespace: <K8S_namespace>,
+  name: <Virtual_Cluster_Name>,
+  createNamespace: <TRUE OR FALSE>,
+  eksNamespace: <K8S_namespace>,
 });
 
 const role = emrEks.createExecutionRole(stack, 'ExecRole',{
-   policy: <POLICY>,
+  policy: <POLICY>,
 })
 
 // EMR on EKS virtual cluster ID
@@ -4589,7 +4595,7 @@ of the stack where virtual cluster is deployed.
 
 - *Type:* <a href="#aws-analytics-reference-architecture.EmrVirtualClusterOptions">EmrVirtualClusterOptions</a>
 
-the EmrVirtualClusterProps [properties]{@link EmrVirtualClusterProps}.
+the EmrVirtualClusterProps [properties]{@link EmrVirtualClusterProps }.
 
 ---
 
@@ -4694,7 +4700,7 @@ public addNodegroupCapacity(nodegroupId: string, options: EmrEksNodegroupOptions
 Add a new Amazon EKS Nodegroup to the cluster.
 
 This method is used to add a nodegroup to the Amazon EKS cluster and automatically set tags based on labels and taints
-  so it can be used for the cluster autoscaler.
+ so it can be used for the cluster autoscaler.
 
 ###### `nodegroupId`<sup>Required</sup> <a name="nodegroupId" id="aws-analytics-reference-architecture.EmrEksCluster.addNodegroupCapacity.parameter.nodegroupId"></a>
 
@@ -5019,9 +5025,9 @@ public readonly DEFAULT_KARPENTER_VERSION: string;
 A CDK construct to create build and publish EMR on EKS custom image  The construct will create an ECR repository to publish the images  It provide a method {@link publishImage} to build a docker file and publish it to the ECR repository   Resources deployed:  * Multiple Session Policies that are used to map an EMR Studio user or group to a set of resources they are allowed to access.
 
 These resources are:
-   * ECR Repository
-   * Codebuild project
-   * A custom resource to build and publish a custom EMR on EKS image 
+  * ECR Repository
+  * Codebuild project
+  * A custom resource to build and publish a custom EMR on EKS image 
 
 
 Usage example:
@@ -5029,7 +5035,7 @@ Usage example:
 ```typescript
 
 const app = new App();
-   
+  
 const account = process.env.CDK_DEFAULT_ACCOUNT;
 const region = process.env.CDK_DEFAULT_REGION;
 
@@ -5038,8 +5044,8 @@ env: { account: account, region: region },
 });
 
 const publish = new EmrEksImageBuilder(stack, 'EmrEksImageBuilder', {
-  repositoryName: 'my-repo',
-  ecrRemovalPolicy: RemovalPolicy.RETAIN
+ repositoryName: 'my-repo',
+ ecrRemovalPolicy: RemovalPolicy.RETAIN
 });
 
 publish.publishImage('PATH-TO-DOCKER-FILE-FOLDER', 'v4');
@@ -5332,19 +5338,19 @@ const vpc = new ec2.Vpc(stack, 'Vpc');
 
 const dbName = 'testdb';
 const cluster = new redshift.Cluster(stack, 'Redshift', {
-   removalPolicy: cdk.RemovalPolicy.DESTROY,
-   masterUser: {
-     masterUsername: 'admin',
-   },
-   vpc,
-   defaultDatabaseName: dbName,
+  removalPolicy: cdk.RemovalPolicy.DESTROY,
+  masterUser: {
+    masterUsername: 'admin',
+  },
+  vpc,
+  defaultDatabaseName: dbName,
 });
 
 new FlywayRunner(stack, 'testMigration', {
-   migrationScriptsFolderAbsolutePath: path.join(__dirname, './resources/sql'),
-   cluster: cluster,
-   vpc: vpc,
-   databaseName: dbName,
+  migrationScriptsFolderAbsolutePath: path.join(__dirname, './resources/sql'),
+  cluster: cluster,
+  vpc: vpc,
+  databaseName: dbName,
 });
 ```
 
@@ -5762,15 +5768,15 @@ public readonly principal: IRole | IUser;
 
 This CDK construct aims to register an S3 Location for Lakeformation with Read and Write access.
 
-If the location is in a different account, cross account access should be granted via the [S3CrossAccount]{@link S3CrossAccount} construct.
+If the location is in a different account, cross account access should be granted via the [S3CrossAccount]{@link S3CrossAccount } construct.
 If the S3 location is encrypted with KMS, the key must be explicitly passed to the construct because CDK cannot retrieve bucket encryption key from imported buckets. 
 Imported buckets are generally used in cross account setup like data mesh.
 
 This construct instantiate 2 objects:
 * An IAM role with read/write permissions to the S3 location and encrypt/decrypt access to the KMS key used to encypt the bucket
 * A CfnResource is based on an IAM role with 2 policy statement folowing the least privilege AWS best practices:
-   * Statement 1 for S3 permissions
-   * Statement 2 for KMS permissions if the bucket is encrypted
+  * Statement 1 for S3 permissions
+  * Statement 2 for KMS permissions if the bucket is encrypted
 
 The CDK construct instantiate the CfnResource in order to register the S3 location with Lakeformation using the IAM role defined above.
 
@@ -5784,15 +5790,15 @@ const stack = new cdk.Stack(exampleApp, 'LakeformationS3LocationStack');
 
 const myKey = new Key(stack, 'MyKey')
 const myBucket = new Bucket(stack, 'MyBucket', {
-   encryptionKey: myKey,
+  encryptionKey: myKey,
 })
 
 new LakeFormationS3Location(stack, 'MyLakeformationS3Location', {
-   s3Location: {
-     bucketName: myBucket.bucketName,
-     objectKey: 'my-prefix',
-   },
-   kmsKeyId: myBucket.encryptionKey.keyId,
+  s3Location: {
+    bucketName: myBucket.bucketName,
+    objectKey: 'my-prefix',
+  },
+  kmsKeyId: myBucket.encryptionKey.keyId,
 });
 ```
 
@@ -5934,56 +5940,56 @@ Resources deployed:
 * Multiple EMR on EKS Managed Endpoints, each for a user or a group of users
 * An execution role to be passed to the Managed endpoint from a policy provided by the user
 * Multiple Session Policies that are used to map an EMR Studio user or group to a set of resources they are allowed to access. These resources are:
-   * EMR Virtual Cluster - created above
-   * ManagedEndpoint
+  * EMR Virtual Cluster - created above
+  * ManagedEndpoint
 
 
 Usage example:
 
 ```typescript
 const emrEks = EmrEksCluster.getOrCreate(stack, {
-   eksAdminRoleArn: 'arn:aws:iam::012345678912:role/Admin-Admin',
-   eksClusterName: 'cluster',
+  eksAdminRoleArn: 'arn:aws:iam::012345678912:role/Admin-Admin',
+  eksClusterName: 'cluster',
 });
 
 const notebookPlatform = new NotebookPlatform(stack, 'platform-notebook', {
-   emrEks: emrEks,
-   eksNamespace: 'platformns',
-   studioName: 'platform',
-   studioAuthMode: StudioAuthMode.SSO,
+  emrEks: emrEks,
+  eksNamespace: 'platformns',
+  studioName: 'platform',
+  studioAuthMode: StudioAuthMode.SSO,
 });
 
 // If the S3 bucket is encrypted, add policy to the key for the role
 const policy1 = new ManagedPolicy(stack, 'MyPolicy1', {
-   statements: [
-     new PolicyStatement({
-       resources: <BUCKET ARN(s)>,
-       actions: ['s3:*'],
-     }),
-     new PolicyStatement({
-       resources: [
-         stack.formatArn({
-           account: Aws.ACCOUNT_ID,
-           region: Aws.REGION,
-           service: 'logs',
-           resource: '*',
-           arnFormat: ArnFormat.NO_RESOURCE_NAME,
-         }),
-       ],
-       actions: [
-         'logs:*',
-       ],
-     }),
-   ],
+  statements: [
+    new PolicyStatement({
+      resources: <BUCKET ARN(s)>,
+      actions: ['s3:*'],
+    }),
+    new PolicyStatement({
+      resources: [
+        stack.formatArn({
+          account: Aws.ACCOUNT_ID,
+          region: Aws.REGION,
+          service: 'logs',
+          resource: '*',
+          arnFormat: ArnFormat.NO_RESOURCE_NAME,
+        }),
+      ],
+      actions: [
+        'logs:*',
+      ],
+    }),
+  ],
 });
 
 notebookPlatform.addUser([{
-   identityName: 'user1',
-   identityType: SSOIdentityType.USER,
-   notebookManagedEndpoints: [{
-     emrOnEksVersion: EmrVersion.V6_9,
-     executionPolicy: policy1,
-   }],
+  identityName: 'user1',
+  identityType: SSOIdentityType.USER,
+  notebookManagedEndpoints: [{
+    emrOnEksVersion: EmrVersion.V6_9,
+    executionPolicy: policy1,
+  }],
 }]);
 
 ```
@@ -6141,9 +6147,9 @@ const stack = new cdk.Stack(exampleApp, 'S3CrossAccountStack');
 const myBucket = new Bucket(stack, 'MyBucket')
 
 new S3CrossAccount(stack, 'S3CrossAccountGrant', {
-   bucket: myBucket,
-   s3ObjectKey: 'my-data',
-   accountId: '1234567891011',
+  bucket: myBucket,
+  s3ObjectKey: 'my-data',
+  accountId: '1234567891011',
 });
 ```
 
@@ -6272,9 +6278,9 @@ new SingletonCfnLaunchTemplate(scope: Construct, id: string, props: CfnLaunchTem
 
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
-| <code><a href="#aws-analytics-reference-architecture.SingletonCfnLaunchTemplate.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | - scope in which this resource is defined. |
-| <code><a href="#aws-analytics-reference-architecture.SingletonCfnLaunchTemplate.Initializer.parameter.id">id</a></code> | <code>string</code> | - scoped id of the resource. |
-| <code><a href="#aws-analytics-reference-architecture.SingletonCfnLaunchTemplate.Initializer.parameter.props">props</a></code> | <code>aws-cdk-lib.aws_ec2.CfnLaunchTemplateProps</code> | - resource properties. |
+| <code><a href="#aws-analytics-reference-architecture.SingletonCfnLaunchTemplate.Initializer.parameter.scope">scope</a></code> | <code>constructs.Construct</code> | Scope in which this resource is defined. |
+| <code><a href="#aws-analytics-reference-architecture.SingletonCfnLaunchTemplate.Initializer.parameter.id">id</a></code> | <code>string</code> | Construct identifier for this resource (unique in its scope). |
+| <code><a href="#aws-analytics-reference-architecture.SingletonCfnLaunchTemplate.Initializer.parameter.props">props</a></code> | <code>aws-cdk-lib.aws_ec2.CfnLaunchTemplateProps</code> | Resource properties. |
 
 ---
 
@@ -6282,7 +6288,7 @@ new SingletonCfnLaunchTemplate(scope: Construct, id: string, props: CfnLaunchTem
 
 - *Type:* constructs.Construct
 
-scope in which this resource is defined.
+Scope in which this resource is defined.
 
 ---
 
@@ -6290,7 +6296,7 @@ scope in which this resource is defined.
 
 - *Type:* string
 
-scoped id of the resource.
+Construct identifier for this resource (unique in its scope).
 
 ---
 
@@ -6298,7 +6304,7 @@ scoped id of the resource.
 
 - *Type:* aws-cdk-lib.aws_ec2.CfnLaunchTemplateProps
 
-resource properties.
+Resource properties.
 
 ---
 
@@ -6704,7 +6710,7 @@ tree inspector to collect and process attributes.
 | --- | --- |
 | <code><a href="#aws-analytics-reference-architecture.SingletonCfnLaunchTemplate.isConstruct">isConstruct</a></code> | Checks if `x` is a construct. |
 | <code><a href="#aws-analytics-reference-architecture.SingletonCfnLaunchTemplate.isCfnElement">isCfnElement</a></code> | Returns `true` if a construct is a stack element (i.e. part of the synthesized cloudformation template). |
-| <code><a href="#aws-analytics-reference-architecture.SingletonCfnLaunchTemplate.isCfnResource">isCfnResource</a></code> | Check whether the given construct is a CfnResource. |
+| <code><a href="#aws-analytics-reference-architecture.SingletonCfnLaunchTemplate.isCfnResource">isCfnResource</a></code> | Check whether the given object is a CfnResource. |
 | <code><a href="#aws-analytics-reference-architecture.SingletonCfnLaunchTemplate.getOrCreate">getOrCreate</a></code> | *No description.* |
 
 ---
@@ -6765,14 +6771,14 @@ versions of this library to be included in the same stack.
 ```typescript
 import { SingletonCfnLaunchTemplate } from 'aws-analytics-reference-architecture'
 
-SingletonCfnLaunchTemplate.isCfnResource(construct: IConstruct)
+SingletonCfnLaunchTemplate.isCfnResource(x: any)
 ```
 
-Check whether the given construct is a CfnResource.
+Check whether the given object is a CfnResource.
 
-###### `construct`<sup>Required</sup> <a name="construct" id="aws-analytics-reference-architecture.SingletonCfnLaunchTemplate.isCfnResource.parameter.construct"></a>
+###### `x`<sup>Required</sup> <a name="x" id="aws-analytics-reference-architecture.SingletonCfnLaunchTemplate.isCfnResource.parameter.x"></a>
 
-- *Type:* constructs.IConstruct
+- *Type:* any
 
 ---
 
@@ -6815,6 +6821,7 @@ SingletonCfnLaunchTemplate.getOrCreate(scope: Construct, name: string, data: str
 | <code><a href="#aws-analytics-reference-architecture.SingletonCfnLaunchTemplate.property.cfnResourceType">cfnResourceType</a></code> | <code>string</code> | AWS resource type. |
 | <code><a href="#aws-analytics-reference-architecture.SingletonCfnLaunchTemplate.property.attrDefaultVersionNumber">attrDefaultVersionNumber</a></code> | <code>string</code> | The default version of the launch template, such as 2. |
 | <code><a href="#aws-analytics-reference-architecture.SingletonCfnLaunchTemplate.property.attrLatestVersionNumber">attrLatestVersionNumber</a></code> | <code>string</code> | The latest version of the launch template, such as `5` . |
+| <code><a href="#aws-analytics-reference-architecture.SingletonCfnLaunchTemplate.property.attrLaunchTemplateId">attrLaunchTemplateId</a></code> | <code>string</code> | The ID of the launch template. |
 | <code><a href="#aws-analytics-reference-architecture.SingletonCfnLaunchTemplate.property.launchTemplateData">launchTemplateData</a></code> | <code>aws-cdk-lib.IResolvable \| aws-cdk-lib.aws_ec2.CfnLaunchTemplate.LaunchTemplateDataProperty</code> | The information for the launch template. |
 | <code><a href="#aws-analytics-reference-architecture.SingletonCfnLaunchTemplate.property.launchTemplateName">launchTemplateName</a></code> | <code>string</code> | A name for the launch template. |
 | <code><a href="#aws-analytics-reference-architecture.SingletonCfnLaunchTemplate.property.tagSpecifications">tagSpecifications</a></code> | <code>aws-cdk-lib.IResolvable \| aws-cdk-lib.IResolvable \| aws-cdk-lib.aws_ec2.CfnLaunchTemplate.LaunchTemplateTagSpecificationProperty[]</code> | The tags to apply to the launch template on creation. |
@@ -6940,6 +6947,18 @@ The latest version of the launch template, such as `5` .
 
 ---
 
+##### `attrLaunchTemplateId`<sup>Required</sup> <a name="attrLaunchTemplateId" id="aws-analytics-reference-architecture.SingletonCfnLaunchTemplate.property.attrLaunchTemplateId"></a>
+
+```typescript
+public readonly attrLaunchTemplateId: string;
+```
+
+- *Type:* string
+
+The ID of the launch template.
+
+---
+
 ##### `launchTemplateData`<sup>Required</sup> <a name="launchTemplateData" id="aws-analytics-reference-architecture.SingletonCfnLaunchTemplate.property.launchTemplateData"></a>
 
 ```typescript
@@ -6949,8 +6968,6 @@ public readonly launchTemplateData: IResolvable | LaunchTemplateDataProperty;
 - *Type:* aws-cdk-lib.IResolvable | aws-cdk-lib.aws_ec2.CfnLaunchTemplate.LaunchTemplateDataProperty
 
 The information for the launch template.
-
-> [http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-launchtemplate.html#cfn-ec2-launchtemplate-launchtemplatedata](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-launchtemplate.html#cfn-ec2-launchtemplate-launchtemplatedata)
 
 ---
 
@@ -6964,8 +6981,6 @@ public readonly launchTemplateName: string;
 
 A name for the launch template.
 
-> [http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-launchtemplate.html#cfn-ec2-launchtemplate-launchtemplatename](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-launchtemplate.html#cfn-ec2-launchtemplate-launchtemplatename)
-
 ---
 
 ##### `tagSpecifications`<sup>Optional</sup> <a name="tagSpecifications" id="aws-analytics-reference-architecture.SingletonCfnLaunchTemplate.property.tagSpecifications"></a>
@@ -6978,12 +6993,6 @@ public readonly tagSpecifications: IResolvable | IResolvable | LaunchTemplateTag
 
 The tags to apply to the launch template on creation.
 
-To tag the launch template, the resource type must be `launch-template` .
-
-> To specify the tags for the resources that are created when an instance is launched, you must use the `TagSpecifications` parameter in the [launch template data](https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_RequestLaunchTemplateData.html) structure.
-
-> [http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-launchtemplate.html#cfn-ec2-launchtemplate-tagspecifications](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-launchtemplate.html#cfn-ec2-launchtemplate-tagspecifications)
-
 ---
 
 ##### `versionDescription`<sup>Optional</sup> <a name="versionDescription" id="aws-analytics-reference-architecture.SingletonCfnLaunchTemplate.property.versionDescription"></a>
@@ -6995,8 +7004,6 @@ public readonly versionDescription: string;
 - *Type:* string
 
 A description for the first version of the launch template.
-
-> [http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-launchtemplate.html#cfn-ec2-launchtemplate-versiondescription](http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-launchtemplate.html#cfn-ec2-launchtemplate-versiondescription)
 
 ---
 
@@ -8756,7 +8763,7 @@ public readonly additionalStepFunctionTasks: IChainable[];
 ```
 
 - *Type:* aws-cdk-lib.aws_stepfunctions.IChainable[]
-- *Default:* The BatchReplayer do not have additional Tasks  The expected input for the first Task in this sequence is:  input = [ { "processedRecords": Int, "outputPaths": String [], "startTimeinIso": String, "endTimeinIso": String } ]  Each element in input represents the output of each lambda iterator that replays the data.  param: processedRecods -> Number of records processed param: ouputPaths -> List of files created in S3  **  eg. "s3://<sinkBucket name>/<s3ObjectKeySink prefix, if any>/<dataset name>/ingestion_start=<timestamp>/ingestion_end=<timestamp>/<s3 filename>.csv", param: startTimeinIso -> Start Timestamp on original dataset param: endTimeinIso -> End Timestamp on original dataset  *outputPaths* can be used to extract and aggregate new partitions on data and  trigger additional Tasks.
+- *Default:* The BatchReplayer do not have additional Tasks  The expected input for the first Task in this sequence is:  input = [ { "processedRecords": Int, "outputPaths": String [], "startTimeinIso": String, "endTimeinIso": String } ]  Each element in input represents the output of each lambda iterator that replays the data.  param: processedRecods -> Number of records processed param: ouputPaths -> List of files created in S3  **  eg. "s3://<sinkBucket name>/<s3ObjectKeySink prefix, if any>/<dataset name>/ingestion_start=<timestamp>/ingestion_end=<timestamp>/<s3 filename>.csv",  param: startTimeinIso -> Start Timestamp on original dataset param: endTimeinIso -> End Timestamp on original dataset  *outputPaths* can be used to extract and aggregate new partitions on data and  trigger additional Tasks.
 
 Additional StupFunction Tasks to run sequentially after the BatchReplayer finishes.
 
@@ -8879,6 +8886,7 @@ const cdkDeployerProps: CdkDeployerProps = { ... }
 | <code><a href="#aws-analytics-reference-architecture.CdkDeployerProps.property.env">env</a></code> | <code>aws-cdk-lib.Environment</code> | The AWS environment (account/region) where this stack will be deployed. |
 | <code><a href="#aws-analytics-reference-architecture.CdkDeployerProps.property.permissionsBoundary">permissionsBoundary</a></code> | <code>aws-cdk-lib.PermissionsBoundary</code> | Options for applying a permissions boundary to all IAM Roles and Users created within this Stage. |
 | <code><a href="#aws-analytics-reference-architecture.CdkDeployerProps.property.stackName">stackName</a></code> | <code>string</code> | Name to deploy the stack with. |
+| <code><a href="#aws-analytics-reference-architecture.CdkDeployerProps.property.suppressTemplateIndentation">suppressTemplateIndentation</a></code> | <code>boolean</code> | Enable this flag to suppress indentation in generated CloudFormation templates. |
 | <code><a href="#aws-analytics-reference-architecture.CdkDeployerProps.property.synthesizer">synthesizer</a></code> | <code>aws-cdk-lib.IStackSynthesizer</code> | Synthesis method to use while deploying this stack. |
 | <code><a href="#aws-analytics-reference-architecture.CdkDeployerProps.property.tags">tags</a></code> | <code>{[ key: string ]: string}</code> | Stack tags that will be applied to all the taggable resources and the stack itself. |
 | <code><a href="#aws-analytics-reference-architecture.CdkDeployerProps.property.terminationProtection">terminationProtection</a></code> | <code>boolean</code> | Whether to enable termination protection for this stack. |
@@ -9053,6 +9061,26 @@ public readonly stackName: string;
 - *Default:* Derived from construct path.
 
 Name to deploy the stack with.
+
+---
+
+##### ~~`suppressTemplateIndentation`~~<sup>Optional</sup> <a name="suppressTemplateIndentation" id="aws-analytics-reference-architecture.CdkDeployerProps.property.suppressTemplateIndentation"></a>
+
+- *Deprecated:* The enum should not be used. Use https://github.com/flochaz/cdk-standalone-deployer
+The properties for the CdkDeployer construct.
+
+```typescript
+public readonly suppressTemplateIndentation: boolean;
+```
+
+- *Type:* boolean
+- *Default:* the value of `@aws-cdk/core:suppressTemplateIndentation`, or `false` if that is not set.
+
+Enable this flag to suppress indentation in generated CloudFormation templates.
+
+If not specified, the value of the `@aws-cdk/core:suppressTemplateIndentation`
+context key will be used. If that is not specified, then the
+default value `false` will be used.
 
 ---
 
@@ -9786,6 +9814,7 @@ const emrEksClusterProps: EmrEksClusterProps = { ... }
 | **Name** | **Type** | **Description** |
 | --- | --- | --- |
 | <code><a href="#aws-analytics-reference-architecture.EmrEksClusterProps.property.autoscaling">autoscaling</a></code> | <code><a href="#aws-analytics-reference-architecture.Autoscaler">Autoscaler</a></code> | The autoscaling mechanism to use. |
+| <code><a href="#aws-analytics-reference-architecture.EmrEksClusterProps.property.createEmrOnEksServiceLinkedRole">createEmrOnEksServiceLinkedRole</a></code> | <code>boolean</code> | Wether we need to create an EMR on EKS Service Linked Role. |
 | <code><a href="#aws-analytics-reference-architecture.EmrEksClusterProps.property.defaultNodes">defaultNodes</a></code> | <code>boolean</code> | If set to true, the Construct will create default EKS nodegroups or node provisioners (based on the autoscaler mechanism used). |
 | <code><a href="#aws-analytics-reference-architecture.EmrEksClusterProps.property.eksAdminRoleArn">eksAdminRoleArn</a></code> | <code>string</code> | Amazon IAM Role to be added to Amazon EKS master roles that will give access to kubernetes cluster from AWS console UI. |
 | <code><a href="#aws-analytics-reference-architecture.EmrEksClusterProps.property.eksCluster">eksCluster</a></code> | <code>aws-cdk-lib.aws_eks.Cluster</code> | The EKS cluster to setup EMR on. |
@@ -9793,7 +9822,7 @@ const emrEksClusterProps: EmrEksClusterProps = { ... }
 | <code><a href="#aws-analytics-reference-architecture.EmrEksClusterProps.property.eksVpc">eksVpc</a></code> | <code>aws-cdk-lib.aws_ec2.IVpc</code> | The VPC object where to deploy the EKS cluster VPC should have at least two private and public subnets in different Availability Zones All private subnets should have the following tags: 'for-use-with-amazon-emr-managed-policies'='true' 'kubernetes.io/role/internal-elb'='1' All public subnets should have the following tag: 'kubernetes.io/role/elb'='1' Cannot be combined with vpcCidr, if combined vpcCidr takes precendency. |
 | <code><a href="#aws-analytics-reference-architecture.EmrEksClusterProps.property.emrEksNodegroups">emrEksNodegroups</a></code> | <code><a href="#aws-analytics-reference-architecture.EmrEksNodegroup">EmrEksNodegroup</a>[]</code> | List of EmrEksNodegroup to create in the cluster in addition to the default [nodegroups]{@link EmrEksNodegroup}. |
 | <code><a href="#aws-analytics-reference-architecture.EmrEksClusterProps.property.karpenterVersion">karpenterVersion</a></code> | <code>string</code> | The version of karpenter to pass to Helm. |
-| <code><a href="#aws-analytics-reference-architecture.EmrEksClusterProps.property.kubectlLambdaLayer">kubectlLambdaLayer</a></code> | <code>aws-cdk-lib.aws_lambda.ILayerVersion</code> | Starting k8s 1.22, CDK no longer bundle the kubectl layer with the code due to breaking npm package size.  A layer needs to be passed to the Construct. |
+| <code><a href="#aws-analytics-reference-architecture.EmrEksClusterProps.property.kubectlLambdaLayer">kubectlLambdaLayer</a></code> | <code>aws-cdk-lib.aws_lambda.ILayerVersion</code> | Starting k8s 1.22, CDK no longer bundle the kubectl layer with the code due to breaking npm package size. A layer needs to be passed to the Construct. |
 | <code><a href="#aws-analytics-reference-architecture.EmrEksClusterProps.property.kubernetesVersion">kubernetesVersion</a></code> | <code>aws-cdk-lib.aws_eks.KubernetesVersion</code> | Kubernetes version for Amazon EKS cluster that will be created. |
 | <code><a href="#aws-analytics-reference-architecture.EmrEksClusterProps.property.vpcCidr">vpcCidr</a></code> | <code>string</code> | The CIDR of the VPC to use with EKS, if provided a VPC with three public subnets and three private subnet is create The size of the private subnets is four time the one of the public subnet. |
 
@@ -9811,6 +9840,19 @@ The autoscaling mechanism to use.
 
 ---
 
+##### `createEmrOnEksServiceLinkedRole`<sup>Optional</sup> <a name="createEmrOnEksServiceLinkedRole" id="aws-analytics-reference-architecture.EmrEksClusterProps.property.createEmrOnEksServiceLinkedRole"></a>
+
+```typescript
+public readonly createEmrOnEksServiceLinkedRole: boolean;
+```
+
+- *Type:* boolean
+- *Default:* true
+
+Wether we need to create an EMR on EKS Service Linked Role.
+
+---
+
 ##### `defaultNodes`<sup>Optional</sup> <a name="defaultNodes" id="aws-analytics-reference-architecture.EmrEksClusterProps.property.defaultNodes"></a>
 
 ```typescript
@@ -9823,9 +9865,9 @@ public readonly defaultNodes: boolean;
 If set to true, the Construct will create default EKS nodegroups or node provisioners (based on the autoscaler mechanism used).
 
 There are three types of nodes:
-  * Nodes for critical jobs which use on-demand instances, high speed disks and workload isolation
-  * Nodes for shared worklaods which uses spot instances and no isolation to optimize costs
-  * Nodes for notebooks which leverage a cost optimized configuration for running EMR managed endpoints and spark drivers/executors.
+ * Nodes for critical jobs which use on-demand instances, high speed disks and workload isolation
+ * Nodes for shared worklaods which uses spot instances and no isolation to optimize costs
+ * Nodes for notebooks which leverage a cost optimized configuration for running EMR managed endpoints and spark drivers/executors.
 
 ---
 
@@ -9856,7 +9898,7 @@ public readonly eksCluster: Cluster;
 The EKS cluster to setup EMR on.
 
 The cluster needs to be created in the same CDK Stack.
-If the EKS cluster is provided, the cluster AddOns and all the controllers (Ingress controller, Cluster Autoscaler or Karpenter...) need to be configured. 
+If the EKS cluster is provided, the cluster AddOns and all the controllers (Ingress controller, Cluster Autoscaler or Karpenter...) need to be configured.
 When providing an EKS cluster, the methods for adding nodegroups can still be used. They implement the best practices for running Spark on EKS.
 
 ---
@@ -9868,7 +9910,7 @@ public readonly eksClusterName: string;
 ```
 
 - *Type:* string
-- *Default:* The [default cluster name]{@link DEFAULT_CLUSTER_NAME}
+- *Default:* The [default cluster name]{@link DEFAULT_CLUSTER_NAME }
 
 Name of the Amazon EKS cluster to be created.
 
@@ -9906,7 +9948,7 @@ public readonly karpenterVersion: string;
 ```
 
 - *Type:* string
-- *Default:* The [default Karpenter version]{@link DEFAULT_KARPENTER_VERSION}
+- *Default:* The [default Karpenter version]{@link DEFAULT_KARPENTER_VERSION }
 
 The version of karpenter to pass to Helm.
 
@@ -9921,7 +9963,7 @@ public readonly kubectlLambdaLayer: ILayerVersion;
 - *Type:* aws-cdk-lib.aws_lambda.ILayerVersion
 - *Default:* No layer is used
 
-Starting k8s 1.22, CDK no longer bundle the kubectl layer with the code due to breaking npm package size.  A layer needs to be passed to the Construct.
+Starting k8s 1.22, CDK no longer bundle the kubectl layer with the code due to breaking npm package size. A layer needs to be passed to the Construct.
 
 The cdk [documentation] (https://docs.aws.amazon.com/cdk/api/v2/docs/aws-cdk-lib.aws_eks.KubernetesVersion.html#static-v1_22)
 contains the libraries that you should add for the right Kubernetes version
@@ -10074,6 +10116,8 @@ const emrEksNodegroupOptions: EmrEksNodegroupOptions = { ... }
 | <code><a href="#aws-analytics-reference-architecture.EmrEksNodegroupOptions.property.labels">labels</a></code> | <code>{[ key: string ]: string}</code> | The Kubernetes labels to be applied to the nodes in the node group when they are created. |
 | <code><a href="#aws-analytics-reference-architecture.EmrEksNodegroupOptions.property.launchTemplateSpec">launchTemplateSpec</a></code> | <code>aws-cdk-lib.aws_eks.LaunchTemplateSpec</code> | Launch template specification used for the nodegroup. |
 | <code><a href="#aws-analytics-reference-architecture.EmrEksNodegroupOptions.property.maxSize">maxSize</a></code> | <code>number</code> | The maximum number of worker nodes that the managed node group can scale out to. |
+| <code><a href="#aws-analytics-reference-architecture.EmrEksNodegroupOptions.property.maxUnavailable">maxUnavailable</a></code> | <code>number</code> | The maximum number of nodes unavailable at once during a version update. |
+| <code><a href="#aws-analytics-reference-architecture.EmrEksNodegroupOptions.property.maxUnavailablePercentage">maxUnavailablePercentage</a></code> | <code>number</code> | The maximum percentage of nodes unavailable during a version update. |
 | <code><a href="#aws-analytics-reference-architecture.EmrEksNodegroupOptions.property.minSize">minSize</a></code> | <code>number</code> | The minimum number of worker nodes that the managed node group can scale in to. |
 | <code><a href="#aws-analytics-reference-architecture.EmrEksNodegroupOptions.property.nodegroupName">nodegroupName</a></code> | <code>string</code> | Name of the Nodegroup. |
 | <code><a href="#aws-analytics-reference-architecture.EmrEksNodegroupOptions.property.nodeRole">nodeRole</a></code> | <code>aws-cdk-lib.aws_iam.IRole</code> | The IAM role to associate with your node group. |
@@ -10217,6 +10261,44 @@ public readonly maxSize: number;
 The maximum number of worker nodes that the managed node group can scale out to.
 
 Managed node groups can support up to 100 nodes by default.
+
+---
+
+##### `maxUnavailable`<sup>Optional</sup> <a name="maxUnavailable" id="aws-analytics-reference-architecture.EmrEksNodegroupOptions.property.maxUnavailable"></a>
+
+```typescript
+public readonly maxUnavailable: number;
+```
+
+- *Type:* number
+- *Default:* 1
+
+The maximum number of nodes unavailable at once during a version update.
+
+Nodes will be updated in parallel. The maximum number is 100.
+
+This value or `maxUnavailablePercentage` is required to have a value for custom update configurations to be applied.
+
+> [https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-eks-nodegroup-updateconfig.html#cfn-eks-nodegroup-updateconfig-maxunavailable](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-eks-nodegroup-updateconfig.html#cfn-eks-nodegroup-updateconfig-maxunavailable)
+
+---
+
+##### `maxUnavailablePercentage`<sup>Optional</sup> <a name="maxUnavailablePercentage" id="aws-analytics-reference-architecture.EmrEksNodegroupOptions.property.maxUnavailablePercentage"></a>
+
+```typescript
+public readonly maxUnavailablePercentage: number;
+```
+
+- *Type:* number
+- *Default:* undefined - node groups will update instances one at a time
+
+The maximum percentage of nodes unavailable during a version update.
+
+This percentage of nodes will be updated in parallel, up to 100 nodes at once.
+
+This value or `maxUnavailable` is required to have a value for custom update configurations to be applied.
+
+> [https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-eks-nodegroup-updateconfig.html#cfn-eks-nodegroup-updateconfig-maxunavailablepercentage](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-eks-nodegroup-updateconfig.html#cfn-eks-nodegroup-updateconfig-maxunavailablepercentage)
 
 ---
 
@@ -10440,7 +10522,7 @@ public readonly configurationOverrides: string;
 ```
 
 - *Type:* string
-- *Default:* Configuration related to the [default nodegroup for notebook]{@link EmrEksNodegroup.NOTEBOOK_EXECUTOR}
+- *Default:* Configuration related to the [default nodegroup for notebook]{@link EmrEksNodegroup.NOTEBOOK_EXECUTOR }
 
 The JSON configuration overrides for Amazon EMR on EKS configuration attached to the managed endpoint.
 
@@ -10453,7 +10535,7 @@ public readonly emrOnEksVersion: EmrVersion;
 ```
 
 - *Type:* <a href="#aws-analytics-reference-architecture.EmrVersion">EmrVersion</a>
-- *Default:* The [default Amazon EMR version]{@link EmrEksCluster.DEFAULT_EMR_VERSION}
+- *Default:* The [default Amazon EMR version]{@link EmrEksCluster.DEFAULT_EMR_VERSION }
 
 The Amazon EMR version to use.
 
@@ -10624,16 +10706,16 @@ Example:
 
 * The SQL file:
 
-   ```sql
-   SELECT * FROM ${TABLE_NAME};
-   ```
+  ```sql
+  SELECT * FROM ${TABLE_NAME};
+  ```
 * The replacement map:
 
-   ```typescript
-   replaceDictionary = {
-     TABLE_NAME: 'my_table'
-   }
-   ```
+  ```typescript
+  replaceDictionary = {
+    TABLE_NAME: 'my_table'
+  }
+  ```
 
 ---
 
@@ -10877,7 +10959,7 @@ const notebookPlatformProps: NotebookPlatformProps = { ... }
 | <code><a href="#aws-analytics-reference-architecture.NotebookPlatformProps.property.eksNamespace">eksNamespace</a></code> | <code>string</code> | the namespace where to deploy the EMR Virtual Cluster. |
 | <code><a href="#aws-analytics-reference-architecture.NotebookPlatformProps.property.idpArn">idpArn</a></code> | <code>string</code> | Used when IAM Authentication is selected with IAM federation with an external identity provider (IdP) for Amazon EMR Studio Value taken from the IAM console in the Identity providers console. |
 | <code><a href="#aws-analytics-reference-architecture.NotebookPlatformProps.property.idpAuthUrl">idpAuthUrl</a></code> | <code>string</code> | Used when IAM Authentication is selected with IAM federation with an external identity provider (IdP) for Amazon EMR Studio This is the URL used to sign in the AWS console. |
-| <code><a href="#aws-analytics-reference-architecture.NotebookPlatformProps.property.idpRelayStateParameterName">idpRelayStateParameterName</a></code> | <code>string</code> | Used when IAM Authentication is selected with IAM federation with an external identity provider (IdP) for Amazon EMR Studio Value can be set with {@link IdpRelayState} Enum or through a value provided by the user. |
+| <code><a href="#aws-analytics-reference-architecture.NotebookPlatformProps.property.idpRelayStateParameterName">idpRelayStateParameterName</a></code> | <code>string</code> | Used when IAM Authentication is selected with IAM federation with an external identity provider (IdP) for Amazon EMR Studio Value can be set with {@link IdpRelayState } Enum or through a value provided by the user. |
 
 ---
 
@@ -10924,7 +11006,7 @@ public readonly eksNamespace: string;
 ```
 
 - *Type:* string
-- *Default:* Use the {@link EmrVirtualClusterOptions} default namespace
+- *Default:* Use the {@link EmrVirtualClusterOptions } default namespace
 
 the namespace where to deploy the EMR Virtual Cluster.
 
@@ -10962,7 +11044,7 @@ public readonly idpRelayStateParameterName: string;
 
 - *Type:* string
 
-Used when IAM Authentication is selected with IAM federation with an external identity provider (IdP) for Amazon EMR Studio Value can be set with {@link IdpRelayState} Enum or through a value provided by the user.
+Used when IAM Authentication is selected with IAM federation with an external identity provider (IdP) for Amazon EMR Studio Value can be set with {@link IdpRelayState } Enum or through a value provided by the user.
 
 ---
 
@@ -11538,11 +11620,11 @@ public readonly TOOLING_ALL: EmrEksNodegroupOptions;
 
 ### PreparedDataset <a name="PreparedDataset" id="aws-analytics-reference-architecture.PreparedDataset"></a>
 
-PreparedDataset is used by the [BatchReplayer]{@link BatchReplayer} to generate data in different targets.
+PreparedDataset is used by the [BatchReplayer]{@link BatchReplayer } to generate data in different targets.
 
 One of the startDatetime or offset parameter needs to be passed to the constructor: 
-  * StartDatetime is used for prepared datasets provided by the Analytics Reference Architecture because they are known during synthetize time.
-  * Offset is used when a PreparedDataset is created from a CustomDataset because the startDatetime is not known during synthetize time.
+ * StartDatetime is used for prepared datasets provided by the Analytics Reference Architecture because they are known during synthetize time.
+ * Offset is used when a PreparedDataset is created from a CustomDataset because the startDatetime is not known during synthetize time.
 
 A PreparedDataset has following properties:
 
@@ -11555,21 +11637,21 @@ Here is an example:
 
 |- time_range_start=16000000000
 
-    |- file1.csv 100MB
+   |- file1.csv 100MB
 
-    |- file2.csv 50MB
+   |- file2.csv 50MB
 
 |- time_range_start=16000000300 // 5 minute range (300 sec)
 
-    |- file1.csv 1MB
+   |- file1.csv 1MB
 
 |- time_range_start=16000000600
 
-    |- file1.csv 100MB
+   |- file1.csv 100MB
 
-    |- file2.csv 100MB
+   |- file2.csv 100MB
 
-    |- whichever-file-name-is-fine-as-we-have-manifest-files.csv 50MB
+   |- whichever-file-name-is-fine-as-we-have-manifest-files.csv 50MB
 
 2. It has a manifest CSV file with two columns: start and path. Start is the timestamp
 
@@ -12089,6 +12171,10 @@ The different EMR versions available on EKS.
 
 | **Name** | **Description** |
 | --- | --- |
+| <code><a href="#aws-analytics-reference-architecture.EmrVersion.V6_14">V6_14</a></code> | *No description.* |
+| <code><a href="#aws-analytics-reference-architecture.EmrVersion.V6_13">V6_13</a></code> | *No description.* |
+| <code><a href="#aws-analytics-reference-architecture.EmrVersion.V6_12">V6_12</a></code> | *No description.* |
+| <code><a href="#aws-analytics-reference-architecture.EmrVersion.V6_11">V6_11</a></code> | *No description.* |
 | <code><a href="#aws-analytics-reference-architecture.EmrVersion.V6_10">V6_10</a></code> | *No description.* |
 | <code><a href="#aws-analytics-reference-architecture.EmrVersion.V6_9">V6_9</a></code> | *No description.* |
 | <code><a href="#aws-analytics-reference-architecture.EmrVersion.V6_8">V6_8</a></code> | *No description.* |
@@ -12102,6 +12188,26 @@ The different EMR versions available on EKS.
 | <code><a href="#aws-analytics-reference-architecture.EmrVersion.V5_32">V5_32</a></code> | *No description.* |
 
 ---
+
+##### `V6_14` <a name="V6_14" id="aws-analytics-reference-architecture.EmrVersion.V6_14"></a>
+
+---
+
+
+##### `V6_13` <a name="V6_13" id="aws-analytics-reference-architecture.EmrVersion.V6_13"></a>
+
+---
+
+
+##### `V6_12` <a name="V6_12" id="aws-analytics-reference-architecture.EmrVersion.V6_12"></a>
+
+---
+
+
+##### `V6_11` <a name="V6_11" id="aws-analytics-reference-architecture.EmrVersion.V6_11"></a>
+
+---
+
 
 ##### `V6_10` <a name="V6_10" id="aws-analytics-reference-architecture.EmrVersion.V6_10"></a>
 

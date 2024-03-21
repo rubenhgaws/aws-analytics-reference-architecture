@@ -5,10 +5,10 @@ const { basename, join, dirname, relative } = require('path');
 const fs = require('fs');
 const glob = require('glob');
 
-
 const { awscdk } = require('projen');
 
-const CDK_VERSION = '2.72.1';
+const CDK_VERSION = '2.130.0';
+const CDK_CONSTRUCTS_VERSION = '10.3.0';
 const project = new awscdk.AwsCdkConstructLibrary({
   majorVersion: 2,
   authorName: 'Amazon Web Services',
@@ -17,15 +17,11 @@ const project = new awscdk.AwsCdkConstructLibrary({
   homepage: 'https://aws-samples.github.io/aws-analytics-reference-architecture/',
   copyrightPeriod: `2021-${new Date().getFullYear()}`,
   copyrightOwner: 'Amazon.com, Inc. or its affiliates. All Rights Reserved.',
-  keywords: [
-    'aws',
-    'constructs',
-    'cdk',
-    'analytics',
-  ],
+  keywords: ['aws', 'constructs', 'cdk', 'analytics'],
 
   cdkVersion: CDK_VERSION,
-  constructsVersion: '10.1.308',
+  jsiiVersion: '~5.3.0',
+  constructsVersion: CDK_CONSTRUCTS_VERSION,
   defaultReleaseBranch: 'main',
   license: 'MIT-0',
   name: 'aws-analytics-reference-architecture',
@@ -58,7 +54,6 @@ const project = new awscdk.AwsCdkConstructLibrary({
     'aws-cdk-lib',
     `aws-cdk@${CDK_VERSION}`,
     `cdk-assets@${CDK_VERSION}`,
-    `@aws-cdk/cx-api@${CDK_VERSION}`,
     `@aws-cdk/cloudformation-diff@${CDK_VERSION}`,
     'jest-runner-groups',
     'promptly',
@@ -67,8 +62,9 @@ const project = new awscdk.AwsCdkConstructLibrary({
     '@types/prettier@2.6.0',
     `@aws-cdk/aws-redshift-alpha@${CDK_VERSION}-alpha.0`,
     `@aws-cdk/aws-glue-alpha@${CDK_VERSION}-alpha.0`,
+    `@aws-cdk/cli-lib-alpha@${CDK_VERSION}-alpha.0`,
     '@aws-cdk/lambda-layer-kubectl-v22',
-    '@aws-cdk/lambda-layer-kubectl-v25'
+    '@aws-cdk/lambda-layer-kubectl-v25',
   ],
 
   peerDeps: [
@@ -82,13 +78,7 @@ const project = new awscdk.AwsCdkConstructLibrary({
     },
   },
 
-  bundledDeps: [
-    'js-yaml',
-    'uuid',
-    'aws-sdk',
-    '@exodus/schemasafe',
-    'simple-base',
-  ],
+  bundledDeps: ['js-yaml', 'uuid', 'aws-sdk', '@exodus/schemasafe', 'simple-base'],
 
   python: {
     distName: 'aws_analytics_reference_architecture',
@@ -104,7 +94,6 @@ const project = new awscdk.AwsCdkConstructLibrary({
   },
 
   stability: 'experimental',
-
 });
 
 project.testTask.reset('jest --group=unit');
@@ -134,7 +123,6 @@ project.packageTask.spawn(project.tasks.tryFind('package-all'));
 project.addTask('test:destroy', {
   exec: 'cdk destroy --app=./lib/integ.default.js',
 });
-
 
 project.addDevDeps('glob');
 
@@ -202,7 +190,6 @@ project.compileTask.exec('npx projen pip-install');
  * @returns Array of directory paths
  */
 function findAllPythonLambdaDir(rootDir) {
-
   return glob.sync(`${rootDir}/**/requirements.txt`).map((pathWithReq) => {
     return pathWithReq;
   });

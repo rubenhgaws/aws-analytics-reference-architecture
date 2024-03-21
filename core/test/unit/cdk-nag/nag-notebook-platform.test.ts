@@ -164,16 +164,6 @@ NagSuppressions.addResourceSuppressionsByPath(
 
 NagSuppressions.addResourceSuppressionsByPath(
   stack,
-  'eks-emr-studio/data-platform/AWSLoadBalancerControllerIAMPolicy/Resource',
-  [{
-    id: 'AwsSolutions-IAM5',
-    reason: 'IAM policy as provided by the open source community for AWS Load Balancer Controller ' +
-            'in https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/v2.3.1/docs/install/iam_policy.json',
-  }],
-);
-
-NagSuppressions.addResourceSuppressionsByPath(
-  stack,
   'eks-emr-studio/data-platform/ec2InstanceNodeGroupRole/Resource',
   [{
     id: 'AwsSolutions-IAM4',
@@ -286,15 +276,6 @@ NagSuppressions.addResourceSuppressionsByPath(
   [{
     id: 'AwsSolutions-IAM4',
     reason: 'AWS Managed policy basic lambda execution role used by Clusterprovider',
-  }],
-);
-
-NagSuppressions.addResourceSuppressionsByPath(
-  stack,
-  'eks-emr-studio/@aws-cdk--aws-eks.KubectlProvider/Handler/ServiceRole/Resource',
-  [{
-    id: 'AwsSolutions-IAM4',
-    reason: 'AWS Managed policy basic lambda execution role, read access to ECR and access to VPC to send kubectl command to control plan',
   }],
 );
 
@@ -559,6 +540,65 @@ NagSuppressions.addResourceSuppressionsByPath(
     reason: 'Policy as defined in the CSI Driver documentation and is scoped by IRSA',
   }],
 );
+
+NagSuppressions.addResourceSuppressionsByPath(
+  stack,
+  'eks-emr-studio/data-platform/IamPolicyEbsCsiDriverIAMPolicy/Resource',
+  [{
+    id: 'AwsSolutions-IAM5',
+    reason: 'use for the EBS CSI driver',
+  }],
+);
+
+
+NagSuppressions.addResourceSuppressionsByPath(
+  stack,
+  'eks-emr-studio/data-platformCluster/KubectlHandlerRole/Resource',
+  [{
+    id: 'AwsSolutions-IAM4',
+    reason: 'IAM policies defined by custom resources for kubectl lambda L2 construct',
+  }],
+);
+
+NagSuppressions.addResourceSuppressionsByPath(
+  stack,
+  'eks-emr-studio/data-platform/ManagedEndpointProvider/OnEvent/Resource',
+  [{ id: 'AwsSolutions-L1', reason: 'Runtime set the by the L2 construct, cannot be changed' }],
+);
+
+NagSuppressions.addResourceSuppressionsByPath(
+  stack,
+  'eks-emr-studio/data-platform/ManagedEndpointProvider/IsComplete/Resource',
+  [{ id: 'AwsSolutions-L1', reason: 'Runtime set the by the L2 construct, cannot be changed' }],
+);
+
+NagSuppressions.addResourceSuppressionsByPath(
+  stack,
+  'eks-emr-studio/data-platform/AsgTagProvider/Tag/Resource',
+  [{ id: 'AwsSolutions-L1', reason: 'Runtime set the by the L2 construct, cannot be changed' }],
+);
+
+NagSuppressions.addResourceSuppressionsByPath(
+  stack,
+  'eks-emr-studio/data-platform/jobTemplateProvider/OnEvent/Resource',
+  [{ id: 'AwsSolutions-L1', reason: 'Runtime set the by the L2 construct, cannot be changed' }],
+);
+
+NagSuppressions.addResourceSuppressionsByPath(stack, 'eks-emr-studio/data-platform/IamPolicyEbsCsiDriverIAMPolicy/Resource', [{
+  id: 'AwsSolutions-IAM5',
+  reason: 'use for the EBS CSI driver',
+}]);
+
+NagSuppressions.addResourceSuppressionsByPath(stack, 'eks-emr-studio/data-platformCluster/KubectlHandlerRole/Resource', [{
+  id: 'AwsSolutions-IAM4',
+  reason: 'IAM policies defined by custom resources for kubectl lambda L2 construct',
+}]);
+
+NagSuppressions.addResourceSuppressionsByPath(stack, 'eks-emr-studio/eksemrstudiodataplatformCluster5BF625E0-AlbController/alb-sa/Role/DefaultPolicy/Resource', [{
+  id: 'AwsSolutions-IAM5',
+  reason: 'IAM policies defined by L2 constructs',
+}]);
+
 
 test('No unsuppressed Errors', () => {
   const errors = Annotations.fromStack(stack).findError('*', Match.stringLikeRegexp('AwsSolutions-.*'));

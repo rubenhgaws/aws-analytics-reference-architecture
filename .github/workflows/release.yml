@@ -27,8 +27,6 @@ jobs:
         with:
           distribution: 'zulu' # OpenJDK
           java-version: '11'
-      - name: force cryptography version
-        run: pip install --force-reinstall "cryptography==38.0.4"
       - name: Install dependencies
         run: cd core && yarn install --check-files --frozen-lockfile
       - name: release
@@ -44,7 +42,7 @@ jobs:
           name: dist
           path: core/dist
     container:
-      image: jsii/superchain:1-buster-slim-node14
+      image: jsii/superchain:1-bullseye-slim-node20
   release_github:
     name: Publish to GitHub Releases
     needs: release
@@ -88,7 +86,7 @@ jobs:
           NPM_REGISTRY: registry.npmjs.org
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     container:
-      image: jsii/superchain:1-buster-slim-node14
+      image: jsii/superchain:1-bullseye-slim-node20
   release_pypi:
     name: Publish to PyPI
     needs: release
@@ -108,7 +106,7 @@ jobs:
           TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
     container:
-      image: jsii/superchain:1-buster-slim-node14
+      image: jsii/superchain:1-bullseye-slim-node20
   slack:
     name: Publish to slack channel
     needs: 
